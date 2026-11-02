@@ -1,0 +1,27 @@
+# Supabase 무료 프로젝트가 일시정지되지 않도록 매일 DB 에 질의를 보냄 (외부 예약 서비스: GitHub Actions)
+# 저장소 Settings > Secrets and variables > Actions 에 DATABASE_URL 을 넣어야 동작함
+name: supabase-keepalive
+on:
+  schedule:
+    - cron: "0 0 * * *"   # 매일 09:00 (한국 시각)
+  workflow_dispatch: {}
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install psycopg2
+        run: pip install psycopg2-binary
+      - name: Query DB
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          python - <<'PY'
+          import os, psycopg2
+          url = os.environ.get("DATABASE_URL")
+          print("DATABASE_URL:", "있음" if url else "없음")
+          conn = psycopg2.connect(url, connect_timeout=15)
+          cur = conn.cursor()
+          cur.execute("select count(*) from tf_students")
+          print("tf_students 행 수:", cur.fetchone()[0])
+          conn.close()
+          PY
