@@ -1,0 +1,11 @@
+# 비밀 값: 절대 커밋하지 않음
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.zip
+.DS_Store
